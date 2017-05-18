@@ -1,12 +1,12 @@
 Name:		rtpengine
-Version:	4.5.0
-Release:	0%{?dist}
+Version:	4.5.4.1
+Release:	0.ives%{?dist}
 Summary:	The Sipwise NGCP rtpengine
 
 Group:		System Environment/Daemons
 License:	GPLv3
 URL:		https://github.com/sipwise/rtpengine
-Source0:	https://github.com/sipwise/rtpengine/archive/mr%{version}/%{name}-%{version}.tar.gz
+Source0:	https://github.com/sipwise/rtpengine/archive/ives/%{version}/%{name}-ives-%{version}.tar.gz
 Conflicts:	%{name}-kernel < %{version}-%{release}
 
 BuildRequires:	gcc make pkgconfig redhat-rpm-config
@@ -49,11 +49,17 @@ Requires(preun): epel-release dkms
 
 
 %prep
-%setup -q
-
+cd  $RPM_BUILD_DIR
+rm -rf %{name}-ives-%{version}
+gzip -dc $RPM_SOURCE_DIR/%{name}-ives-%{version}.tar.gz | tar -xvvf -
+if [ $? -ne 0 ]; then
+  exit $?
+fi
+cd %{name}-ives-%{version}
+cd  $RPM_BUILD_DIR/%{name}-ives-%{version}
 
 %build
-cd daemon
+cd %{name}-ives-%{version}/daemon
 RTPENGINE_VERSION="\"%{version}-%{release}\"" make
 cd ../iptables-extension
 RTPENGINE_VERSION="\"%{version}-%{release}\"" make
@@ -61,6 +67,7 @@ cd ..
 
 
 %install
+cd %{name}-ives-%{version}
 # Install the userspace daemon
 install -D -p -m755 daemon/%{name} %{buildroot}%{_sbindir}/%{name}
 # Install CLI (command line interface)
@@ -141,7 +148,7 @@ true
 %attr(0750,%{name},%{name}) %dir %{_sharedstatedir}/%{name}
 
 # Documentation
-%doc LICENSE README.md el/README.el.md debian/changelog debian/copyright
+%doc %{name}-ives-%{version}/LICENSE %{name}-ives-%{version}/README.md %{name}-ives-%{version}/el/README.el.md %{name}-ives-%{version}/debian/changelog %{name}-ives-%{version}/debian/copyright
 
 
 %files kernel
